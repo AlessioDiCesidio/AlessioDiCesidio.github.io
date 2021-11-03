@@ -1,0 +1,645 @@
+province<-Indicatori_BES_provinciali[,1]
+riga1<-Indicatori_BES_provinciali[1,]
+dati<-Indicatori_BES_provinciali
+dati<-lapply(dati, as.numeric)
+dati<-as.data.frame(dati)
+dati.completi<-data.frame(X=province, Y=dati)
+dati.completi<-dati.completi[,-2]
+dati.completi<-dati.completi[-1,]
+colnames(dati.completi)<-riga1
+
+dati2<-dati.completi[-c(64,65,56,22),]  #dati senza province con tutti NA come valori
+
+dati_centro<-dati.completi[c(3,5,6,33,35,38,41,46,49,51,52,54,71,72,75,76,79,84,86,91,97,111),]
+dati_nordest<-dati.completi[c(15,34,37,59,69,74,81,83,85,40,77,102,103,100,16,11,67,87,101,105,108,110),]
+dati_nordovest<-dati.completi[c(39,42,44,90,13,17,27,29,48,50,53,58,60,70,93,104,2,7,14,31,62,98,106,107,4),]
+dati_mezzogiorno<-dati.completi[c(26,45,73,96,78,55,25,28,30,82,109,8,12,23,61,21,43,9,10,18,36,47,95,19,63,66,89,94,1,20,24,32,57,68,80,92,99),]
+
+##ANALISI ESPLORATIVA DATI
+Neet<-dati2[,dati2$`Giovani che non lavorano e non studiano (Neet)`]
+
+
+
+#effettuo la tabella delle frequenze e l'istogramma
+estremi_classi<-c(0,10,15,20,25,30,35,40,50)
+classi<-cut(dati2$`Giovani che non lavorano e non studiano (Neet)`, breaks = estremi_classi)
+fr.ass<-table(classi)
+fr.ass
+fr.rel<-table(classi)/sum(table(classi))
+results<-cbind(fr.ass, fr.rel)
+results
+hist(dati2$`Giovani che non lavorano e non studiano (Neet)`, breaks = estremi_classi, main = "NEET in Italia", xlab = "Percentuale NEET su totale giovani", ylab = "Frequenze assolute", color)
+ggplot(dati2, aes(x=`Giovani che non lavorano e non studiano (Neet)`)) + 
+  geom_histogram(fill="#69b3a2", color="#e9ecef", alpha=0.7, binwidth = 0.5, breaks=estremi_classi)
+
+boxplot(dati2$`Giovani che non lavorano e non studiano (Neet)`,main="Boxplot NEET in Italia",col="brown",border="black",horizontal = TRUE)
+
+#TEST CHI QUADRO
+estremi<-c(0,15,20,25,30,35,50)
+classi_neet<-cut(dati2$`Giovani che non lavorano e non studiano (Neet)`, breaks = estremi)
+fr.ass.neet<-table(classi_neet)
+fr.ass.neet
+estremi_to<-c(15,20,25,30,35,40,55)
+classi_to<-cut(dati2$`Tasso di occupazione giovanile (15-29 anni)`, breaks = estremi_to)
+fr.ass.to<-table(classi_to)
+fr.ass.to
+classi_to<-cut(dati2$`Tasso di occupazione giovanile (15-29 anni)`)
+
+tabella<-as.table(rbind(fr.ass.neet,fr.ass.to))
+tabella
+chisq.test(tabella)
+chisq.test(tabella)$expected
+
+#rifiuto ipotesi quindi dimostro la dipendenza fra occupazione giovanile e i NEET
+
+plot(dati2$`Giovani che non lavorano e non studiano (Neet)`,dati2$`Tasso di occupazione giovanile (15-29 anni)`)
+abline(lm(dati2$`Giovani che non lavorano e non studiano (Neet)`~dati2$`Tasso di occupazione giovanile (15-29 anni)`))
+
+
+#vediamo la media dei NEET in Italia
+media_italia<-mean(dati2$`Giovani che non lavorano e non studiano (Neet)`)
+
+#Ora vediamo la differenza fra le zone d'Italia.
+#Nord-Est
+classi_ne<-cut(dati_nordest$`Giovani che non lavorano e non studiano (Neet)`, breaks = estremi_classi)
+fr.ass_ne<-table
+fr.ass_ne<-table(classi_ne)
+fr.ass_ne
+fr.rel_ne<-table(classi_ne)/sum(table(classi_ne))
+results_ne<-cbind(fr.ass_ne, fr.rel_ne)
+results_ne
+hist(dati_nordest$`Giovani che non lavorano e non studiano (Neet)`)
+hist(dati_nordest$`Giovani che non lavorano e non studiano (Neet)`, breaks = estremi_classi, main = "NEET nel Nord-est", xlab = "Percentuale NEET su totale giovani", ylab = "Frequenze assolute", col = "orange")
+#Nord-Ovest
+classi_no<-cut(dati_nordovest$`Giovani che non lavorano e non studiano (Neet)`, breaks = estremi_classi)
+fr.ass_no<-table
+fr.ass_no<-table(classi_no)
+fr.ass
+fr.rel_no<-table(classi_no)/sum(table(classi_no))
+results_no<-cbind(fr.ass_no, fr.rel_no)
+results_no
+hist(dati_nordovest$`Giovani che non lavorano e non studiano (Neet)`, breaks = estremi_classi, main = "NEET nel Nord-Ovest", xlab = "Percentuale NEET su totale giovani", ylab = "Frequenze assolute")
+ggplot(dati_nordovest, aes(x=`Giovani che non lavorano e non studiano (Neet)`)) 
++   geom_histogram(fill="#69b3a2", color="#e9ecef", alpha=0.7, binwidth = 0.5, breaks=estremi_classi)
+#Centro
+classi_ce<-cut(dati_centro$`Giovani che non lavorano e non studiano (Neet)`, breaks = estremi_classi)
+fr.ass_ce<-table
+fr.ass_ce<-table(classi_ce)
+fr.ass_ce
+fr.rel_ce<-table(classi_ce)/sum(table(classi_ce))
+results_ce<-cbind(fr.ass_ce, fr.rel_ce)
+results_ce
+hist(dati_centro$`Giovani che non lavorano e non studiano (Neet)`, breaks = estremi_classi, main = "NEET nel Centro Italia", xlab = "Percentuale NEET su totale giovani", ylab = "Frequenze assolute")
+ggplot(dati_centro, aes(x=`Giovani che non lavorano e non studiano (Neet)`)) 
++   geom_histogram(fill="#69b3a2", color="#e9ecef", alpha=0.7, binwidth = 0.5, breaks=estremi_classi)
+
+#Mezzogiorno
+classi_me<-cut(dati_mezzogiorno$`Giovani che non lavorano e non studiano (Neet)`, breaks = estremi_classi)
+fr.ass_me<-table
+fr.ass_me<-table(classi_me)
+fr.ass_me
+fr.rel_me<-table(classi_me)/sum(table(classi_me))
+results_me<-cbind(fr.ass_me, fr.rel_me)
+results_me
+hist(dati_mezzogiorno$`Giovani che non lavorano e non studiano (Neet)`, breaks = estremi_classi, main = "NEET nel Mezzogiorno d'Italia", xlab = "Percentuale NEET su totale giovani", ylab = "Frequenze assolute")
+ggplot(dati_mezzogiorno, aes(x=`Giovani che non lavorano e non studiano (Neet)`)) 
++   geom_histogram(fill="#69b3a2", color="#e9ecef", alpha=0.7, binwidth = 0.5, breaks=estremi_classi)
+
+
+tabella_frequenze<-as.table(cbind(fr.ass,fr.ne,fr.ass_no,fr.ass_ce,fr.ass_me))
+tabella_frequenze
+colnames(tabella_frequenze)<-c("Frequenze assolute Italia", "Frequenze assolute nordest","Frequenze assolute nordovest","Frequenze assolute centro","Frequenze assolute mezzogiorno")
+tabella_frequenze
+tabella_frequenze<-round(tabella_frequenze, 2)
+library(LabRS)
+exptab(list(tabella_frequenze), file = "tabelle.csv")
+View(tabella_frequenze)
+
+library(ggplot2)
+hist(dati2$`Giovani che non lavorano e non studiano (Neet)`, main = "Neet in Italia",xlab = "Percentuale NEET su totale giovani",ylab = "Frequenze assolute (numero province)", col = "brown")
+
+tabellatorta<-
+pie(tabellatorta)
+
+lowerq<-quantile(dati2$`Giovani che non lavorano e non studiano (Neet)`)[2]
+upperq<-quantile(dati2$`Giovani che non lavorano e non studiano (Neet)`)[4]
+iqr<-upperq-lowerq
+
+mildupper<-(iqr*1.5)+upperq
+mildlower<-lowerq-(iqr*1.5)
+mildupper
+mildlower
+
+
+extreme<-(iqr*3)+upperq
+extremlo<-lowerq-(iqr*3)
+extreme
+extremlo
+
+
+
+
+
+
+par(mfrow=c(2,2))
+hist(dati_nordest$`Giovani che non lavorano e non studiano (Neet)`,  main = "NEET nel Nord-est", xlab = "Percentuale NEET su totale giovani", ylab = "Frequenze assolute", col = "blue")
+hist(dati_nordovest$`Giovani che non lavorano e non studiano (Neet)`, main = "NEET nel Nord-Ovest", xlab = "Percentuale NEET su totale giovani", ylab = "Frequenze assolute", col = "green")
+hist(dati_centro$`Giovani che non lavorano e non studiano (Neet)`, main = "NEET nel Centro Italia", xlab = "Percentuale NEET su totale giovani", ylab = "Frequenze assolute",col="red")
+hist(dati_mezzogiorno$`Giovani che non lavorano e non studiano (Neet)`, main = "NEET nel Mezzogiorno d'Italia", xlab = "Percentuale NEET su totale giovani", ylab = "Frequenze assolute", col="orange")
+
+par(mfrow=c(2,2))
+ggplot(dati_nordest, aes(x=`Giovani che non lavorano e non studiano (Neet)`)) +geom_histogram(fill="#69b3a2", color="#e9ecef", alpha=0.7, binwidth = 0.5, breaks=estremi_classi)
+ggplot(dati_nordovest, aes(x=`Giovani che non lavorano e non studiano (Neet)`)) +   geom_histogram(fill="#69b3a2", color="#e9ecef", alpha=0.7, binwidth = 0.5, breaks=estremi_classi)
+ggplot(dati_centro, aes(x=`Giovani che non lavorano e non studiano (Neet)`)) +   geom_histogram(fill="#69b3a2", color="#e9ecef", alpha=0.7, binwidth = 0.5, breaks=estremi_classi)
+ggplot(dati_mezzogiorno, aes(x=`Giovani che non lavorano e non studiano (Neet)`)) +   geom_histogram(fill="#69b3a2", color="#e9ecef", alpha=0.7, binwidth = 0.5, breaks=estremi_classi)
+
+
+#confronto Boxplot
+par(mfrow=c(2,2))
+boxplot(dati_nordest$`Giovani che non lavorano e non studiano (Neet)`, col = terrain.colors(4), horizontal = T, main="Neet nel Nord-Est")
+boxplot(dati_nordovest$`Giovani che non lavorano e non studiano (Neet)`, col = terrain.colors(4), horizontal = T, main="Neet nel Nord-Ovest")
+boxplot(dati_centro$`Giovani che non lavorano e non studiano (Neet)`, col = terrain.colors(4), horizontal = T, main="Neet nel Centro")
+boxplot(dati_mezzogiorno$`Giovani che non lavorano e non studiano (Neet)`,main="Boxplot NEET nel Mezzogiorno",col=terrain.colors(4),horizontal = TRUE)
+
+
+
+
+
+#possiamo effettuare un confronto fra medie
+media_nordest<-mean(dati_nordest$`Giovani che non lavorano e non studiano (Neet)`)
+media_nordovest<-mean(dati_nordovest$`Giovani che non lavorano e non studiano (Neet)`)
+media_centro<-mean(dati_centro$`Giovani che non lavorano e non studiano (Neet)`)
+media_mezzogiorno<-mean(dati_mezzogiorno$`Giovani che non lavorano e non studiano (Neet)`)
+media<-c(media_italia, media_nordest, media_nordovest, media_centro, media_mezzogiorno)
+
+#confronto fra mediane
+mediana_nordest<-median(dati_nordest$`Giovani che non lavorano e non studiano (Neet)`)
+mediana_nordovest<-median(dati_nordovest$`Giovani che non lavorano e non studiano (Neet)`)
+mediana_centro<-median(dati_centro$`Giovani che non lavorano e non studiano (Neet)`)
+mediana_mezzogiorno<-median(dati_mezzogiorno$`Giovani che non lavorano e non studiano (Neet)`)
+mediana_italia<-median(dati2$`Giovani che non lavorano e non studiano (Neet)`)
+mediana<-c(mediana_italia, mediana_nordest, mediana_nordovest, mediana_centro, mediana_mezzogiorno)
+
+
+#confronto attraverso il CV
+CV_italia<-sd(dati2$`Giovani che non lavorano e non studiano (Neet)`)/(abs(mean(dati2$`Giovani che non lavorano e non studiano (Neet)`)))
+CV_nordest<-sd(dati_nordest$`Giovani che non lavorano e non studiano (Neet)`)/(abs(mean(dati_nordest$`Giovani che non lavorano e non studiano (Neet)`)))
+CV_nordovest<-sd(dati_nordovest$`Giovani che non lavorano e non studiano (Neet)`/abs(mean(dati_nordovest$`Giovani che non lavorano e non studiano (Neet)`)))
+CV_centro<-sd(dati_centro$`Giovani che non lavorano e non studiano (Neet)`)/(abs(mean(dati_centro$`Giovani che non lavorano e non studiano (Neet)`)))
+CV_mezzogiorno<-sd(dati_mezzogiorno$`Giovani che non lavorano e non studiano (Neet)`)/(abs(mean(dati_mezzogiorno$`Giovani che non lavorano e non studiano (Neet)`)))
+CV_totale<-c(CV_italia, CV_nordest, CV_nordovest, CV_centro, CV_mezzogiorno)
+
+#correlazione dati
+#ITALIA
+library(corrplot)
+dati.modello.neet<-dati2[,c(19,29,12,22)]
+dati.modello_neetna<-na.exclude(dati.modello.neet)
+colnames(dati.modello.neet)<-c('Neet','Occ. Giovanile','Reddito Medio','Passaggio Uni')
+dati.senza.na<-na.exclude(dati.modello.neet)
+cor.mat=cor(dati.senza.na)
+corrplot(cor.mat,method="circle")
+
+#NORDOVEST
+
+dati.modello.neet_nordovest<-dati_nordovest[,c(29,12,19,22)]
+colnames(dati.modello.neet_nordovest)<-c('Neet','Occ Giova','Part El','Pass Uni')
+dati.senza.na_nordovest<-na.exclude(dati.modello.neet_nordovest)
+cor.mat=cor(dati.senza.na_nordovest)
+corrplot(cor.mat,method="circle")
+#MEZZOGIORNO
+dati.modello.neet_mezzogiorno<-dati_mezzogiorno[,c(19,29,12,22)]
+colnames(dati.modello.neet_mezzogiorno)<-c('Neet','Occ Giova','Part El','Pass Uni')
+dati.senza.na_mezzogiorno<-na.exclude(dati.modello.neet_mezzogiorno)
+cor.mat=cor(dati.senza.na_mezzogiorno)
+corrplot(cor.mat,method="circle")
+
+#NORDEST
+dati.modello.neet_nordest<-dati_nordest[,c(19,29,12,22)]
+colnames(dati.modello.neet_nordest)<-c('Neet','Occ Giova','Part El','Pass Uni')
+dati.senza.na_nordest<-na.exclude(dati.modello.neet_nordest)
+cor.mat=cor(dati.senza.na_nordest)
+corrplot(cor.mat,method="circle")
+
+#CENTRO
+dati.modello.neet_centro<-dati_centro[,c(19,29,12,22)]
+colnames(dati.modello.neet_centro)<-c('Neet','Occ Giova','Part El','Pass Uni')
+dati.senza.na_centro<-na.exclude(dati.modello.neet_centro)
+cor.mat=cor(dati.senza.na_centro)
+corrplot(cor.mat,method="circle")
+
+
+
+#asimmetria e curtosi
+mydata<-rnorm(dati2$`Giovani che non lavorano e non studiano (Neet)`,0,1)
+library(moments)
+asimmetria_italia<-skewness(mydata)
+curtosi_italia<-kurtosis(mydata)
+library(ggplot2)
+ggplot(dati2, aes(x=`Giovani che non lavorano e non studiano (Neet)`)) + 
+  geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.7, bw=0.5) 
+
+#nordest
+mydatane<-rnorm(dati_nordest$`Giovani che non lavorano e non studiano (Neet)`,0,1)
+asimmetria_nordest<-skewness(mydatane)
+curtosi_nordest<-kurtosis(mydatane)
+ggplot(dati_nordest, aes(x=`Giovani che non lavorano e non studiano (Neet)`)) + 
+  geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.7, bw=0.5) 
+
+#nordovest
+mydatano<-rnorm(dati_nordovest$`Giovani che non lavorano e non studiano (Neet)`,0,1)
+asimmetria_nordovest<-skewness(mydatano)
+curtosi_nordovest<-kurtosis(mydatano)
+ggplot(dati_nordovest, aes(x=`Giovani che non lavorano e non studiano (Neet)`)) + 
+  geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.7, bw=0.5) 
+
+#centro
+mydata_centro<-rnorm(dati_centro$`Giovani che non lavorano e non studiano (Neet)`,0,1)
+asimmetria_centro<-skewness(mydata_centro)
+curtosi_centro<-kurtosis(mydata_centro)
+ggplot(dati_centro, aes(x=`Giovani che non lavorano e non studiano (Neet)`)) + 
+  geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.7, bw=0.5) 
+
+#mezzogiorno
+mydata_mezz<-rnorm(dati_mezzogiorno$`Giovani che non lavorano e non studiano (Neet)`,0,1)
+asimmetria_mezz<-skewness(mydata_mezz)
+curtosi_mezz<-kurtosis(mydata_mezz)
+ggplot(dati_mezzogiorno, aes(x=`Giovani che non lavorano e non studiano (Neet)`)) + 
+  geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.7, bw=0.5) 
+
+asimmetria<-c(asimmetria_italia, asimmetria_nordest, asimmetria_nordovest, asimmetria_centro, asimmetria_mezz)
+kurtosis<-c(curtosi_italia, curtosi_nordest, curtosi_nordovest, curtosi_centro, curtosi_mezz)
+
+library(ggplot2)
+library(gridExtra)
+grafico_ne<-ggplot(dati_nordest, aes(x=`Giovani che non lavorano e non studiano (Neet)`)) + 
+  geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.7, bw=0.5) 
+grafico_no<-ggplot(dati_nordovest, aes(x=`Giovani che non lavorano e non studiano (Neet)`)) + 
+  geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.7, bw=0.5) 
+grafico_ce<-ggplot(dati_centro, aes(x=`Giovani che non lavorano e non studiano (Neet)`)) + 
+  geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.7, bw=0.5) 
+grafico_me<-ggplot(dati_mezzogiorno, aes(x=`Giovani che non lavorano e non studiano (Neet)`)) + 
+  geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.7, bw=0.5) 
+grid.arrange(grafico_ne,grafico_no, grafico_ce,grafico_me, ncol=2)
+
+#tabella riassuntiva dei dati
+mytable<-data.frame(Media=media, Mediana=mediana, CV=CV_totale, Asimmetria=asimmetria, Curtosi=kurtosis, row.names = c("Italia", "Nord-Est", "Nord-Ovest","Centro","Mezzogiorno"))
+mytable
+Frequenze_Relative<-c(fr.rel,fr.rel_ne,fr.rel_no,fr.rel_ce,fr.rel_me)
+Frequenze_Relative
+Frequenze_Assolute<-c(fr.ass,fr.ass_ne,fr.ass_no,fr.ass_ce,fr.ass_me)
+Frequenze_Assolute
+mytabelf<-data.frame(Frequenze.Assolute=c(fr.ass,fr.ass.ne,fr.ass_no,fr.ass_ce,fr.ass_me), Frequenze.Relative=c(fr.rel,fr.rel_ne, fr.rel_no,fr.rel_ce,fr.rel_me),  row.names = c("Italia", "Nord-Est", "Nord-Ovest","Centro","Mezzogiorno"))
+
+
+colonna1<-summary(dati_nordest$`Giovani che non lavorano e non studiano (Neet)`)
+colonna2<-summary(dati_nordovest$`Giovani che non lavorano e non studiano (Neet)`)
+colonna3<-summary(dati_centro$`Giovani che non lavorano e non studiano (Neet)`)
+colonna4<-summary(dati_mezzogiorno$`Giovani che non lavorano e non studiano (Neet)`)
+
+data<-t(matrix(c(colonna1,colonna2,colonna3,colonna4), ncol=4))
+data
+rownames(data)<-c("Nord-Est","Nord-Ovest", "Centro","Mezzogiorno")
+colnames(data)<-c("Min"," 1 Quartile","Mediana","Media","3 Quartile","Max")
+View(data, title = "Confronto Valori")
+
+
+#CONFRONTO DATI TRA NORD EST E MEZZOGIORNO
+par(mfrow=c(2,1))
+boxplot(dati_nordest$`Giovani che non lavorano e non studiano (Neet)`, col = terrain.colors(4), horizontal = T, main="Neet nel Nord-Est")
+boxplot(dati_mezzogiorno$`Giovani che non lavorano e non studiano (Neet)`,main=" Neet nel Mezzogiorno",col=terrain.colors(4),horizontal = TRUE)
+
+
+library(ggplot2)
+
+
+
+
+#Modello Neet
+#per trovare le variabili esplicative abbiamo effettuato una rgeressione stepwise
+library(MASS)
+stepAIC(lm(formula = dati2$`Giovani che non lavorano e non studiano (Neet)`~dati2$`Reddito medio disponibile pro capite`+dati2$`Tasso di occupazione giovanile (15-29 anni)`+dati2$`Partecipazione elettorale`+dati2$`Laureati e altri titoli terziari (25-39 anni)`+dati2$`Mobilità dei laureati italiani (25-39 anni)`+dati2$`Retribuzione media annua dei lavoratori dipendenti`+dati2$`Passaggio all'università`, data = dati2), direction = "both", trace=0 )
+#dopo di ché, abbiamo eliminato dal modello le variabili meno significative (p value troppo alto) e siamo arrivati ad un modello a 4 variabili, e ad uno a 3 variabili
+
+
+#osserviamo che passaggio all'università ha 5 NA, quindi procediamo a sostituire il loro valore con le medie delle loro rispettive zone
+dati2[16,22]<-mean(dati_nordest$`Passaggio all'università`, na.rm=TRUE)
+dati2[10,22]<-mean(dati_mezzogiorno$`Passaggio all'università`, na.rm=TRUE)
+media_fermo<-mean(dati_centro$`Passaggio all'università`, na.rm=T)
+dati2[32,22]<-media_fermo
+dati2[90,22]<-mean(dati_mezzogiorno$`Passaggio all'università`, na.rm=T)
+dati2[58,22]<-mean(dati_nordovest$`Passaggio all'università`, na.rm=T)
+dati2[90,12]<-mean(dati_mezzogiorno$`Reddito medio disponibile pro capite`, na.rm = T)
+
+
+
+
+modello_neet1<-lm(formula = dati2$`Giovani che non lavorano e non studiano (Neet)`~dati2$`Reddito medio disponibile pro capite`+dati2$`Tasso di occupazione giovanile (15-29 anni)`+dati2$`Passaggio all'università`)
+summary(modello_neet1)
+
+Neet<-dati2$`Giovani che non lavorano e non studiano (Neet)`
+Occupazione_giovanile<-dati2$`Tasso di occupazione giovanile (15-29 anni)`
+Reddito_medio<-dati2$`Reddito medio disponibile pro capite`
+Partecipazione_elettorale<-dati2$`Partecipazione elettorale`
+Passaggio_università<-dati2$`Passaggio all'università`
+
+modello_neet<-lm(formula = Neet~Occupazione_giovanile+Reddito_medio+Partecipazione_elettorale+Passaggio_università, data = dati2)
+
+summary(modello_neet)
+
+dati_modello_neet<-dati2[,c(12,19,22,29)]
+colnames(dati_modello_neet)<-c("Reddito medio","Neet","Occupazione giovanile","Passaggio Università")
+dati_modello_neet_na<-na.exclude(dati_modello_neet)
+cor.mat.neet<-cor(dati_modello_neet_na)
+cor(dati_modello_neet_na)
+corrplot::corrplot(cor.mat.neet, method = "pie")
+
+#Quale regressore incide di più sulla variabile NEET
+
+library(QuantPsyc)
+lm.beta(modello_neet)
+
+#intervalli di confidenza
+confint(modello_neet)
+
+mean(dati2$`Tasso di occupazione giovanile (15-29 anni)`)
+mean(dati2$`Reddito medio disponibile pro capite`)
+mean(dati2$`Partecipazione elettorale`)
+mean(dati2$`Passaggio all'università`)
+
+
+newdata<-data.frame(Occupazione_giovanile=c(50,45,60,55),Reddito_medio=c(24000,22000,30000,27000),Partecipazione_elettorale=c(60,50,65,58),Passaggio_università=c(55,50,60,52))
+
+pred1<-predict(modello_neet,newdata = newdata, interval = "prediction")
+pred1
+
+
+residui<-resid(modello_neet)
+shapiro.test(residui)
+moments::jarque.test(residui)
+qqnorm(scale(residui))
+abline(0,1)
+
+#OUTLIER
+
+rstand<-rstandard(modello_neet)
+plot(rstand, main="Residui standardizzati")
+abline(h=2)
+abline(h=-2)
+rstand[abs(rstand)>2]
+
+rjack<-rstudent(modello_neet)
+plot(rjack, main="Resiidui jacknife")
+abline(h=2)
+abline((h=-2))
+n<-length(rjack)
+p<-modello_neet$rank
+pv<-2*pt(abs(rjack),n-p-1, lower.tail = F)
+rjack[pv<-0.05]
+
+
+library(car)
+outlierTest(modello_neet)
+
+
+#facciamo ora una parziale relazione tra i regressori
+par(mfrow=c(2,2))
+avPlot(modello_neet, variable=Occupazione_giovanile)
+avPlot(modello_neet, variable=Reddito_medio)
+avPlot(modello_neet, variable=Partecipazione_elettorale)
+avPlot(modello_neet, variable=Passaggio_università)
+
+
+par(mfrow=c(2,2))
+crPlot(modello_neet, variable = Occupazione_giovanile)
+crPlot(modello_neet, variable = Reddito_medio)
+crPlot(modello_neet, variable = Partecipazione_elettorale )
+crPlot(modello_neet, variable = Passaggio_università)
+
+
+
+#punti di leva
+par(mfrow=c(1,1))
+lev<-hat(model.matrix(modello_neet))
+n<-length(lev)
+p<-sum(lev)
+plot(lev, main="Punti di Leva")
+abline(h=2*p/n)
+identify(1:length(lev),lev, dati2$Provincia)
+
+lev[lev>2*p/n]
+
+leveragePlots(modello_neet)
+
+cook<-cooks.distance(modello_neet)
+plot(cook,main="Distanza di Cook")
+identify(1:length(cook), cook, province)
+
+
+#analisi grafica dei residui
+plot(fitted(modello_neet), abs(residui), ylab="residui",xlab="Fitted values", main="Residui v.assoluto vs fitted values")
+plot(fitted(modello_neet),residui,ylab="Residui",xlab="Fitted values", main="Residui vs fitted")
+abline(h=0)
+
+hist(residui,prob=T,main="Distribuzione dei residui",xlab="Residui")
+abline(v=0,lwd=3)
+
+predetti<-modello_neet$fitted.values
+plot(predetti, residui, xlab="Valori predetti", ylab="Residui")   #per omoschedasticità
+abline(h=0, col="red",lwd=2)
+
+
+library(car)
+outlierTest(modello_neet)
+crPlots(modello_neet)
+
+library(lmtest)
+dwtest(modello_neet)
+bptest(modello_neet)
+t.test(residui)
+
+vif(modello_ne_4variabii)
+
+par(mfrow=c(2,2))
+plot(modello_ne_4variabii)
+dati_modello_neet<-dati2[,c(12,19,22,29)]
+colnames(dati_modello_neet)<-c("Reddito medio","Neet","Occupazione giovanile","Passaggio Università")
+dati_modello_neet_na<-na.exclude(dati_modello_neet)
+cor.mat.neet<-cor(dati_modello_neet_na)
+cor(dati_modello_neet_na)
+corrplot(cor.mat.neet, method = "pie")
+
+vif(modello_neet)
+
+
+#per vedere se l'aggiunta di una variabile al modello, possa essere significativa, abbiamo effettuato l'ANOVA
+library(car)
+anova(modello_neet1,modello_neet)
+#dato che rifiutiamo H0 essendo p value piccolo, allora il modello a 4 variabili apporta una signfiicato maggiore di quello a 3 variabili
+
+
+
+#verifichiamo quale variabile da maggior peso all R2
+lm.x1 <- lm(dati2$`Giovani che non lavorano e non studiano (Neet)`~dati2$`Tasso di occupazione giovanile (15-29 anni)`)
+lm.x2 <- lm(dati2$`Giovani che non lavorano e non studiano (Neet)`~dati2$`Reddito medio disponibile pro capite`)
+lm.x3<-lm(dati2$`Giovani che non lavorano e non studiano (Neet)`~dati2$`Passaggio all'università`)
+lm.x4<-lm(dati2$`Giovani che non lavorano e non studiano (Neet)`~ dati2$`Partecipazione elettorale`)
+
+lm.x1.x2.x3.x4<- modello_neet
+
+ssr.x1.x2 <- sum(anova(lm.x1.x2)$"Sum Sq"[1:2])
+ssr.x1    <- anova(lm.x1)$"Sum Sq"[1]
+ssr.x2    <- anova(lm.x2)$"Sum Sq"[1]
+ssr.x1.x2 - ssr.x1
+sse.x1 <- anova(lm.x1)$"Sum Sq"[2]
+sse.x2 <- anova(lm.x2)$"Sum Sq"[2]
+
+
+
+(ssr.x1.x2 - ssr.x2) / sse.x2
+
+
+(ssr.x1.x2 - ssr.x1) / sse.x1 
+
+
+
+#MODELLO LOGIT
+dati_neet<-dati2[,19]
+dati_occupazioneg<-dati2[,29]
+dati_neet_logical<-ifelse(dati_neet>mean(dati2$`Giovani che non lavorano e non studiano (Neet)`), "Neet","No Neet")
+
+dati_logit<-cbind(dati2,dati_neet_logical)
+
+dati_logit$Neet<-ifelse(dati_logit$dati_neet_logical=="Neet",1,0)
+
+
+
+dati_patrimonio<-dati2[,10]
+dati_patrimonio
+dati_pat_logical<-ifelse(dati_patrimonio>mean(dati2$`Patrimonio pro capite`, na.rm = TRUE), "Alto","Basso")
+dati_pat_logical
+dati_logit2<-cbind(dati2, dati_pat_logical)
+dati_logit2$dati_pat_logical<-ifelse(dati_logit2$dati_pat_logical=="Alto",1,0)
+dati_logit2$dati_pat_logical
+
+
+
+
+
+
+##REGRESSIONE LINEARE LOGIT
+modello_tutti<-glm(dati_logit$Neet~dati_logit$`Reddito medio disponibile pro capite`+dati_logit$`Tasso di occupazione giovanile (15-29 anni)`+dati_logit$`Partecipazione elettorale`+dati_logit$`Passaggio all'università`, family=binomial(link=logit))
+anova(modello_tutti, test="Chisq")
+
+
+Neet_logit<-dati_logit$Neet
+Occupazione_giovanilel<-dati_logit$`Tasso di occupazione giovanile (15-29 anni)`
+modello_logit<-glm(Neet_logit~Occupazione_giovanilel, family=binomial(link = logit))
+summary(modello_logit)
+
+newdata_logit<-data.frame(Occupazione_giovanilel=c(10,20,25,35,45,55))
+newdata_logit
+rownames(newdata_logit)<-c("10%","20%","25%","35%","45%","55%")
+predicted<-predict(modello_logit, newdata_logit, type="response")
+predicted
+predicted_round<-round(predicted,digits = 2)
+predicted_round
+tabella_predittiva<-as.table(predicted_round)
+tabella_previsioni<-as.data.frame(tabella_predittiva)
+View(tabella_previsioni)
+rownames(tabella_previsioni)<-c(1,2,3,4,5,6)
+colnames(tabella_previsioni)<-c("Tasso Occupazione Giovanile","Probabilità Y=1")
+View(tabella_previsioni)
+
+
+pseudoR2<-function(mod){1-(deviance(mod)/mod$null.deviance)}
+pseudoR2(modello_logit)
+pscl::pR2(modello_logit)["McFadden"]
+View(pscl::pR2(modello_logit)["McFadden"])
+
+
+
+library(ggplot2)
+library(dplyr)
+dati_logit %>%
+  ggplot(aes(Occupazione_giovanilel,Neet_logit))+
+  geom_point(alpha=0.5)+
+  geom_smooth(method = "glm",method.args=list(family=binomial))+
+  labs(title = "Regressione logistica",
+    x="Tasso di Occupazione Giovanile",
+    y="Probabilità di Neet"
+  )
+
+
+
+stargazer::stargazer(modello_logit, type = "text")
+View(
+  stargazer::stargazer(modello_logit, type = "text"))
+
+
+#probabilità e odds
+pi0 <- exp(modello_logit$coefficient[1]) / (1 + exp(modello_logit$coefficient[1]))
+pi0
+pi1<- exp(modello_logit$coefficient[1] + modello_logit$coefficient[2]) / (1 + exp(modello_logit$coefficient[1]+modello_logit$coefficient[2]))
+pi1
+pi2<-exp(modello_logit$coefficient[1]+modello_logit$coefficient[2]+modello_logit$coefficient[3])/(1+exp(modello_logit$coefficient[1]+modello_logit$coefficient[2]+modello_logit$coefficient[3]))
+pi2
+
+odds0 <- pi0 / (1 - pi0) 
+odds1 <- pi1 / (1 - pi1)
+odds2<-pi2/(1-pi2)
+
+car::vif(modello_logit)
+
+OR <- odds1 / odds0
+OR
+
+
+#OPPURE
+OR2<- exp(modello_logit$coefficient[2])
+OR2
+#essendo 0.57, significa che ci aspettiamo di vedere una diminuzione dei NEET del 57% 
+#quando l'occupazione giovanile sale di una unità
+
+library(dplyr)
+probabilities<-modello_logit %>% predict(dati_logit, type="response")
+head(probabilities)
+probabilities2<-round(probabilities, 3)
+
+
+predicted.classes<-ifelse(probabilities>0.5, "neet","no neet")
+predicted.classes
+predicted.classes2<-ifelse(predicted.classes=="neet",1,0)
+predcited_factor<-as.factor(predicted.classes2)
+
+
+#specificità
+library(caret)
+test<-as.factor(dati_logit[,57])
+sensitivity(test, predcited_factor)  #proporzione positivi identificati correttamente
+specificity(test,predcited_factor)    #proporzione di negativi (no neet) essendosi non verificata quella condizione
+library(InformationValue)
+
+pROC::plot.roc(test, predicted.classes2,)
+
+InformationValue::misClassError(test, predcited_factor)
+
+roc_score<-pROC::roc(test, predicted.classes2)
+plot(roc_score, main = "Curva ROC")
+
+###
+modello_logit2<-glm(dati_logit$Neet~ dati_logit$dati_occupazione, family = binomial(link = logit))
+summary(modello_logit2)
+
+probabilities_2m<-predict(modello_logit2, dati_logit,type = "response")
+predicted_2<-ifelse(probabilities_2m>0.5,"1","0")
+predicted_2factor<-as.factor(predicted_2)
+
+matrice_confusione<-matrix(c(58,35,7,7), nrow = 2)
+tabella_errata_classificazione<-as.table(matrice_confusione)
+tabella_errata_classificazione
+
+specificity(test,predicted_2factor)
+sensitivity(test, predicted_2factor)
+
+tabella_specificità<-as.table(specificità,sensitività)
+View(tabella_specificità)
